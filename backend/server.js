@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const path = require('path');
+const Razorpay = require("razorpay");
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,8 @@ app.use("/api/cars", require("./routes/carRoutes"));
 app.use("/api", require("./routes/bookingRoutes"));
 
 app.use("/api/admin", require("./routes/adminRoutes"));
+
+app.use("/api/payment", require("./routes/paymentRoutes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
