@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Upload, Car, MapPin, Calendar, DollarSign, Users, Fuel, Settings, Sparkles, Check, AlertCircle, Camera } from "lucide-react";
+import { Upload, Car, MapPin, Calendar, DollarSign, Users, Fuel, Settings, Sparkles, Check, AlertCircle, Camera, IndianRupee } from "lucide-react";
 
 const AddCarPage = () => {
   // Simulated user data (replace with actual auth hook)
@@ -301,7 +301,7 @@ const AddCarPage = () => {
 
                   <div>
                     <label className={labelClass}>
-                      <DollarSign className="w-4 h-4" />
+                      <IndianRupee className="w-4 h-4" />
                       Price per day (₹)
                     </label>
                     <input 
