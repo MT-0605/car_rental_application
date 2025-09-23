@@ -92,11 +92,14 @@ const BookingForm = ({ car }) => {
         name: "Car Rental Service",
         description: `Booking for ${car.brand} ${car.model}`,
         order_id: order.id,
+        image: "https://example.com/your_logo", // Add your logo URL here
         handler: async function (response) {
           try {
             // ✅ Step 3: Verify payment + Save booking
             const verifyRes = await axios.post("http://localhost:5000/api/payment/verify-payment", {
-              ...response,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
               bookingData: {
                 ...formData,
                 carId: car._id,
@@ -120,12 +123,30 @@ const BookingForm = ({ car }) => {
         prefill: {
           name: user.name,
           email: user.email,
-          contact: "9876543210", // you can replace with user.phone if available
+          contact: "9999999999", // you can replace with user.phone if available
+        },
+        notes: {
+          carId: car._id,
+          carName: `${car.brand} ${car.model}`
         },
         theme: { color: "#4F46E5" },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+            console.log('Checkout form closed');
+          }
+        }
       };
 
-      const rzp = new window.Razorpay(options);
+      // Create a new instance each time
+      const rzp = new Razorpay(options);
+      
+      // Handle payment failures
+      rzp.on('payment.failed', function (response){
+        setError(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+      
       rzp.open();
     } catch (err) {
       console.error("Booking error:", err);
@@ -135,6 +156,30 @@ const BookingForm = ({ car }) => {
     }
   };
 
+  // Find the return statement in the BookingForm component and wrap it with a condition
+  // Add this at the beginning of the return statement:
+  
+  if (!car.available) {
+    return (
+      <div className="bg-gray-100/80 backdrop-blur-sm rounded-xl p-6 text-center">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Car Unavailable</h3>
+        <p className="text-gray-600 mb-4">This car is currently rented and will be available again soon.</p>
+        <button
+          onClick={() => window.history.back()}
+          className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
+        >
+          Browse Other Cars
+        </button>
+      </div>
+    );
+  }
+  
+  // Then continue with the original return statement for available cars
   return (
     <div className="w-full">
       {/* Price Section */}
