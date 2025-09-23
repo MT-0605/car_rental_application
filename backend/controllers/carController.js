@@ -1,4 +1,5 @@
 const Car = require('../models/Car');
+const Booking = require('../models/Booking');
 
 // @desc    Add new car listing
 // @route   POST /api/cars/add
@@ -66,7 +67,7 @@ const getCarById = async (req, res) => {
 
 const getAllCars = async (req, res) => {
   try {
-    const cars = await Car.find({ status: 'approved', available: true }); 
+    const cars = await Car.find({ status: 'approved'}); 
     res.status(200).json(cars);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -77,5 +78,5 @@ const getAllCars = async (req, res) => {
 module.exports = {
   addCar,
   getCarById,
-  getAllCars
+  getAllCars,
 };
