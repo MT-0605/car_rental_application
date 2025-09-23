@@ -10,8 +10,8 @@ const CarDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  
+  // Add this inside the useEffect that fetches the car
   useEffect(() => {
     const fetchCar = async () => {
       try {
@@ -26,7 +26,7 @@ const CarDetailPage = () => {
         setLoading(false);
       }
     };
-
+  
     if (id) {
       fetchCar();
     }

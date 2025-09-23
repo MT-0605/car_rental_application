@@ -11,6 +11,7 @@ const CarListPage = () => {
   const [error, setError] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterPrice, setFilterPrice] = useState("all");
+  const [filterAvailability, setFilterAvailability] = useState("all"); // New filter for availability
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState("grid");
 
@@ -46,7 +47,12 @@ const CarListPage = () => {
         (filterPrice === "medium" && car.price > 1000 && car.price <= 2000) ||
         (filterPrice === "high" && car.price > 2000);
       
-      return matchesSearch && matchesCategory && matchesPrice;
+      // New filter for availability
+      const matchesAvailability = filterAvailability === "all" || 
+        (filterAvailability === "available" && car.available) ||
+        (filterAvailability === "unavailable" && !car.available);
+      
+      return matchesSearch && matchesCategory && matchesPrice && matchesAvailability;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -117,7 +123,7 @@ const CarListPage = () => {
             </div>
 
             {/* Filters Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {/* Category Filter */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-3">
@@ -158,6 +164,29 @@ const CarListPage = () => {
                     <option value="low">Under ₹1,000</option>
                     <option value="medium">₹1,000 - ₹2,000</option>
                     <option value="high">Over ₹2,000</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability Filter - New */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  Availability
+                </label>
+                <div className="relative">
+                  <select
+                    value={filterAvailability}
+                    onChange={(e) => setFilterAvailability(e.target.value)}
+                    className="w-full px-4 py-4 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 rounded-2xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-400 transition-all duration-300 appearance-none cursor-pointer"
+                  >
+                    <option value="all">All Cars</option>
+                    <option value="available">Available Only</option>
+                    <option value="unavailable">Unavailable Only</option>
                   </select>
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                     <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,6 +321,7 @@ const CarListPage = () => {
                   setSearch("");
                   setFilterCategory("all");
                   setFilterPrice("all");
+                  setFilterAvailability("all");
                   setSortBy("name");
                 }}
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-300"

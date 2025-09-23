@@ -44,11 +44,11 @@ const Login = () => {
     }
   };
 
-  // Check if already logged in
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) navigate("/home");
-  // }, [navigate]);
+  //Check if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) navigate("/home");
+  }, [navigate]);
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-2 relative overflow-hidden">
