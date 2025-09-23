@@ -14,7 +14,7 @@ router.get('/stats', async (req, res) => {
     const [totalUsers, totalCars, totalBookings] = await Promise.all([
       User.countDocuments(),
       Car.countDocuments(),
-      Booking.countDocuments(),
+      Booking.countDocuments({endDate: { $gt: new Date() }}),
     ]);
 
     const revenueAgg = await Booking.aggregate([
@@ -116,5 +116,3 @@ router.get('/users', async (req, res) => {
 });
 
 module.exports = router;
-
-
