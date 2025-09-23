@@ -8,7 +8,7 @@ const CarCard = ({ car }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Link to={`/cars/${car._id}`} className="block group">
+    <div className="block group">
       <div 
         className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:rotate-1 overflow-hidden border border-white/20 hover:border-purple-200/50"
         onMouseEnter={() => setIsHovered(true)}
@@ -144,12 +144,28 @@ const CarCard = ({ car }) => {
               <span className="font-medium">{car.seating}</span>
             </div>
           </div>
+          
+          {/* Book Now Button */}
+          <div className="pt-4">
+            <Link to={`/cars/${car._id}`}>
+              <button 
+                className={`w-full py-3 px-6 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 ${
+                  car.available 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transform hover:scale-105' 
+                    : 'bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-70'
+                }`}
+                disabled={!car.available}
+              >
+                {car.available ? 'Book Now' : 'Currently Unavailable'}
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* Subtle Border Animation */}
         <div className="absolute inset-0 rounded-3xl border border-transparent bg-gradient-to-r from-purple-200 via-blue-200 to-pink-200 opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none" />
       </div>
-    </Link>
+    </div>
   );
 };
 
