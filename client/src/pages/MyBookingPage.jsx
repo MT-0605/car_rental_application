@@ -11,6 +11,12 @@ const bookingsAPI = {
 
 // ✅ Single Booking Card
 const MyBookingCard = ({ booking }) => {
+  const today = new Date();
+  const bookingEnd = new Date(booking.endDate);
+
+  // Check if booking is completed
+  const isCompleted = bookingEnd < today;
+
   return (
     <div className="bg-white shadow-md rounded-2xl p-5 hover:shadow-lg transition-all duration-300">
       <div className="flex justify-between items-start mb-3">
@@ -20,14 +26,18 @@ const MyBookingCard = ({ booking }) => {
           </h3>
           <p className="text-sm text-gray-500">Booking #{booking._id.slice(-6)}</p>
         </div>
+
+        {/* ✅ Status Badge */}
         <span
           className={`px-3 py-1 rounded-full text-xs font-medium ${
-            booking.paymentStatus === "Paid"
+            isCompleted
+              ? "bg-gray-200 text-gray-700"
+              : booking.paymentStatus === "Paid"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
           }`}
         >
-          {booking.paymentStatus}
+          {isCompleted ? "Completed" : booking.paymentStatus}
         </span>
       </div>
 

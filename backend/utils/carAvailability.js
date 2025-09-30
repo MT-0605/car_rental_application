@@ -28,7 +28,7 @@ const updateCarAvailability = async () => {
       if (activeBookings.length === 0) {
         await Car.findByIdAndUpdate(booking.carId, { 
           available: true,
-          location: booking.returnLocation 
+          location: booking.returnLocation
         });
         console.log(`Car ${booking.carId} is now available again at location: ${booking.returnLocation}`);
       }

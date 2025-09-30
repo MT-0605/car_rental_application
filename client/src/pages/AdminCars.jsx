@@ -1,148 +1,187 @@
-import React, { useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { 
-  Car, 
-  AlertCircle,
-  Filter,
-  Search,
-} from 'lucide-react';
-import CarCardAdmin from '../components/CarCardAdmin';
+import Sidebar from '../components/Sidebar';
 
 const AdminCars = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // State for search, filter, and pagination
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'pending', 'approved', 'rejected'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const CARS_PER_PAGE = 10;
 
   const tokenHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 
-  const load = async () => {
+  const load = useCallback(async (page = 1, search = '', status = 'all') => {
+    setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/admin/cars', tokenHeader());
-      setCars(data);
+      const params = { page, limit: CARS_PER_PAGE, search, status };
+      const { data } = await axios.get('http://localhost:5000/api/admin/cars', { ...tokenHeader(), params });
+
+      setCars(data.cars);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.currentPage);
     } catch (e) {
       setError(e.response?.data?.message || 'Failed to load cars');
     } finally {
       setLoading(false);
     }
+  }, [CARS_PER_PAGE]); // Dependency on CARS_PER_PAGE
+
+  // Effect for the initial data load when the component mounts.
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Handler for initiating a search or filter change.
+  const handleFilterOrSearch = () => {
+    load(1, searchTerm, statusFilter); // Reset to page 1 and load with new filters.
   };
 
-  useEffect(() => { load(); }, []);
-  // Filter cars based on search term and status
-  const filteredCars = cars.filter(car => {
-    const matchesSearch = car.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         car.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (car.owner?.name || car.owner)?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || car.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const approve = async (id) => {
+    try {
+      await axios.post(`http://localhost:5000/api/admin/cars/${id}/approve`, {}, tokenHeader());
+      await load(currentPage, searchTerm, statusFilter);
+      alert('Car approved.');
+    } catch (e) {
+      alert(e.response?.data?.message || 'Approve failed');
+    }
+  };
 
-  
-  const LoadingSkeleton = () => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg overflow-hidden">
-      <div className="p-6 space-y-4">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex items-center space-x-4 animate-pulse">
-            <div className="w-16 h-16 bg-gray-200 rounded-xl"></div>
-            <div className="flex-1 space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-            </div>
-            <div className="space-x-2">
-              <div className="w-20 h-8 bg-gray-200 rounded-lg inline-block"></div>
-              <div className="w-20 h-8 bg-gray-200 rounded-lg inline-block"></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const reject = async (id) => {
+    try {
+      await axios.post(`http://localhost:5000/api/admin/cars/${id}/reject`, {}, tokenHeader());
+      await load(currentPage, searchTerm, statusFilter);
+      alert('Car rejected.');
+    } catch (e) {
+      alert(e.response?.data?.message || 'Reject failed');
+    }
+  };
+
+  const remove = async (id) => {
+    if (!confirm('Are you sure you want to delete this car?')) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/admin/cars/${id}`, tokenHeader());
+      await load(currentPage, searchTerm, statusFilter);
+      alert('Car deleted.');
+    } catch (e) {
+      alert(e.response?.data?.message || 'Delete failed');
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
-      
-      <div className="flex-1 p-4 md:p-8">
-        {/* Header Section */}
-        <div className="mb-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  Car Management
-                </h1>
-                <p className="text-gray-600 mt-2 flex items-center">
-                  <Car className="w-4 h-4 mr-2" />
-                  Manage and approve vehicle listings
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900">{cars.length}</div>
-                <div className="text-sm text-gray-500">Total Cars</div>
-              </div>
-            </div>
-          </div>
+      <div className="flex-grow p-8">
+        <h1 className="text-2xl font-bold mb-6">Manage Cars</h1>
+
+        {/* Search & Filter Controls */}
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <input
+            type="text"
+            placeholder="Search by brand or model..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleFilterOrSearch()}
+            className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button
+            onClick={handleFilterOrSearch}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Filter / Search
+          </button>
         </div>
 
-        {/* Search and Filter Section */}
-        <div className="mb-6 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search cars by brand, model, or owner..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
-              />
-            </div>
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="pl-10 pr-8 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm appearance-none cursor-pointer"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        {error && <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6 text-red-600">{error}</div>}
 
-        {/* Error State */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-3">
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            <span className="text-red-700 font-medium">{error}</span>
-          </div>
-        )}
-
-        {/* Content */}
         {loading ? (
-          <LoadingSkeleton />
-        ) : filteredCars.length === 0 ? (
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg p-12 text-center">
-            <Car className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No cars found</h3>
-            <p className="text-gray-500">
-              {searchTerm || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria.' 
-                : 'No cars have been registered yet.'}
-            </p>
-          </div>
+          <p>Loading...</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredCars.map(car => (
-              <CarCardAdmin key={car._id} car={car} />
-            ))}
-          </div>
+          <>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className="bg-gray-50">
+                  <tr className="text-gray-600">
+                    <th className="px-4 py-3 font-medium">Car</th>
+                    <th className="px-4 py-3 font-medium">Owner</th>
+                    <th className="px-4 py-3 font-medium">Price</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Available</th>
+                    <th className="px-4 py-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cars.length > 0 ? cars.map(car => (
+                    <tr key={car._id} className="border-t hover:bg-gray-50">
+                      <td className="px-4 py-3">{car.brand} {car.model}</td>
+                      <td className="px-4 py-3">{car.owner?.name || car.owner}</td>
+                      <td className="px-4 py-3">₹{car.price}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          car.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          car.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {car.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{car.available ? 'Yes' : 'No'}</td>
+                      <td className="px-4 py-3 space-x-2 whitespace-nowrap">
+                        {car.status !== 'approved' && (
+                          <button onClick={() => approve(car._id)} className="px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600">Approve</button>
+                        )}
+                        {car.status !== 'rejected' && (
+                          <button onClick={() => reject(car._id)} className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600">Reject</button>
+                        )}
+                        <button onClick={() => remove(car._id)} className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600">Delete</button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan="6" className="text-center py-8 text-gray-500">No cars found matching your criteria.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center mt-6">
+                <button
+                  onClick={() => load(currentPage - 1, searchTerm, statusFilter)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+                <span className="text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => load(currentPage + 1, searchTerm, statusFilter)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

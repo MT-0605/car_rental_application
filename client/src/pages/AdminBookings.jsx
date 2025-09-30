@@ -32,21 +32,38 @@ const AdminBookings = () => {
       (booking.userId?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${booking.carId?.brand || ''} ${booking.carId?.model || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || booking.paymentStatus === statusFilter;
-    
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'completed'
+        ? new Date(booking.endDate) < new Date()
+        : booking.paymentStatus.toLowerCase() === statusFilter);
+
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status) => {
+  // ✅ Updated Badge Logic with Completed
+  const getStatusBadge = (status, endDate) => {
+    const today = new Date();
+    const bookingEnd = new Date(endDate);
+
+    // Completed condition
+    if (bookingEnd < today) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-200 text-gray-700 border-gray-300">
+          Completed
+        </span>
+      );
+    }
+
     const statusConfig = {
       paid: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
       failed: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
       cancelled: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' }
     };
-    
+
     const config = statusConfig[status?.toLowerCase()] || statusConfig.pending;
-    
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.bg} ${config.text} ${config.border}`}>
         {status}
@@ -220,7 +237,7 @@ const AdminBookings = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(booking.paymentStatus)}
+                        {getStatusBadge(booking.paymentStatus, booking.endDate)}
                       </td>
                     </tr>
                   ))}

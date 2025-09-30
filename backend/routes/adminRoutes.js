@@ -13,7 +13,7 @@ router.get('/stats', async (req, res) => {
   try {
     const [totalUsers, totalCars, totalBookings] = await Promise.all([
       User.countDocuments(),
-      Car.countDocuments(),
+      Car.countDocuments({available: true}),
       Booking.countDocuments({endDate: { $gt: new Date() }}),
     ]);
 
@@ -31,6 +31,7 @@ router.get('/stats', async (req, res) => {
 // Bookings list with user and car info
 router.get('/bookings', async (req, res) => {
   try {
+    // Note: You could also apply pagination to bookings in the future using the same pattern as below.
     const bookings = await Booking.find().populate('carId').populate('userId');
     res.json(bookings);
   } catch (e) {
@@ -38,15 +39,50 @@ router.get('/bookings', async (req, res) => {
   }
 });
 
-// Cars management (CRUD)
+// =================================================================
+// MODIFIED SECTION: Cars management with Pagination and Search
+// =================================================================
 router.get('/cars', async (req, res) => {
   try {
-    const cars = await Car.find().populate('owner');
-    res.json(cars);
+    // 1. Get query parameters with default values
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+
+    // 2. Create a search query filter for brand or model
+    const query = search
+      ? {
+          $or: [
+            { brand: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
+            { model: { $regex: search, $options: 'i' } }
+          ]
+        }
+      : {};
+
+    // 3. Get the total number of cars that match the search query
+    const totalCars = await Car.countDocuments(query);
+    const totalPages = Math.ceil(totalCars / limit);
+
+    // 4. Find the cars for the current page, applying search, sorting, and pagination
+    const cars = await Car.find(query)
+      .populate('owner')
+      .sort({ createdAt: -1 }) // Show newest cars first
+      .skip((page - 1) * limit) // Logic to skip documents for previous pages
+      .limit(limit); // Limit the results to the number per page
+
+    // 5. Send the response in the expected format
+    res.json({
+      cars,
+      totalPages,
+      currentPage: page,
+    });
   } catch (e) {
     res.status(500).json({ message: 'Failed to load cars', error: e.message });
   }
 });
+// =================================================================
+// END OF MODIFIED SECTION
+// =================================================================
 
 router.post('/cars', async (req, res) => {
   try {
@@ -69,6 +105,7 @@ router.put('/cars/:id', async (req, res) => {
 
 router.delete('/cars/:id', async (req, res) => {
   try {
+    console.log(req.body)
     const car = await Car.findByIdAndDelete(req.params.id);
     if (!car) return res.status(404).json({ message: 'Car not found' });
     res.json({ message: 'Car deleted' });
@@ -95,6 +132,7 @@ router.post('/cars/:id/approve', async (req, res) => {
 router.post('/cars/:id/reject', async (req, res) => {
   try {
     const car = await Car.findById(req.params.id).populate('owner');
+    console.log(car)
     if (!car) return res.status(404).json({ message: 'Car not found' });
     car.status = 'rejected';
     car.available = false;
@@ -108,6 +146,7 @@ router.post('/cars/:id/reject', async (req, res) => {
 // Users list
 router.get('/users', async (req, res) => {
   try {
+    // Note: You could also apply pagination here.
     const users = await User.find();
     res.json(users);
   } catch (e) {
