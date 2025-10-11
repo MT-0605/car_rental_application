@@ -49,7 +49,7 @@ A modern, full-stack car rental application built with the MERN stack (MongoDB, 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/MT-0605/DriveNow.git
+git clone https://github.com/MT-0605/car_rental_application.git
 cd DriveNow
 ```
 
