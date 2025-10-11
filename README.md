@@ -49,7 +49,7 @@ A modern, full-stack car rental application built with the MERN stack (MongoDB, 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/DriveNow.git
+git clone https://github.com/MT-0605/DriveNow.git
 cd DriveNow
 ```
 
@@ -81,11 +81,10 @@ npm start
 - **Account Management**: Create and manage your user profile
 - **Car Search**: Find cars by location, date, price, and features
 - **Booking Management**: View your bookings
-- **Reviews & Ratings**: Rate your rental experience
 - **Secure Payments**: Pay securely for your bookings
 
 ### For Admins
-- **User Management**: View and manage all users
+- **User Management**: View all users details
 - **Car Approval**: Approve or reject car listings
 - **Booking Oversight**: Monitor all bookings in the system
 - **System Analytics**: View platform performance metrics
@@ -93,22 +92,22 @@ npm start
 ## 🔧 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/signup` - Register a new user
 - `POST /api/auth/login` - Login a user
 
 ### Cars
 - `GET /api/cars` - Get all cars
 - `GET /api/cars/:id` - Get a specific car
-- `POST /api/cars` - Add a new car
-- `PUT /api/cars/:id` - Update a car
+- `POST /api/cars/add` - Add a new car
 - `DELETE /api/cars/:id` - Delete a car
+- `POST /api/cars/:id/approve - Approve the car listing
+- `POST /api/cars/:id/reject - Reject the car listing
+
 
 ### Bookings
 - `GET /api/bookings` - Get user bookings
 - `POST /api/bookings` - Create a booking
 - `GET /api/bookings/:id` - Get a specific booking
-- `PUT /api/bookings/:id` - Update a booking
-- `DELETE /api/bookings/:id` - Cancel a booking
 
 ### Admin
 - `GET /api/admin/users` - Get all users
@@ -134,7 +133,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Meet Tank - meettank652006@gmail.com
 
-Project Link: [https://github.com/MT-0605/DriveNow](https://github.com/MT-0605/DriveNow)
+Project Link: [https://github.com/MT-0605/car_rental_application](https://github.com/MT-0605/car_rental_application)
 
 ---
 
