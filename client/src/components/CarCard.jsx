@@ -27,7 +27,7 @@ const CarCard = ({ car }) => {
           )}
           
           <img
-            src={`http://localhost:5000${car.imageUrl}`}
+            src={car.imageUrl}
             alt={`${car.brand} ${car.model}`}
             className={`w-full h-48 object-cover transition-all duration-700 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'

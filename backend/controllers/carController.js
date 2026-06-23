@@ -20,7 +20,9 @@ const addCar = async (req, res) => {
       userId,
     } = req.body;
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const imageUrl = req.file
+      ? req.file.path
+      : "";
 
     const newCar = new Car({
       brand,
@@ -67,7 +69,7 @@ const getCarById = async (req, res) => {
 
 const getAllCars = async (req, res) => {
   try {
-    const cars = await Car.find({ status: 'approved'}); 
+    const cars = await Car.find({ status: 'approved' });
     res.status(200).json(cars);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
