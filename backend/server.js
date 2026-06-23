@@ -14,7 +14,7 @@ connectDB();
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: [process.env.CLIENT_URL],
   credentials: true
 }));
 
@@ -35,7 +35,7 @@ app.use("/api/admin", require("./routes/adminRoutes"));
 
 app.use("/api/payment", require("./routes/paymentRoutes"));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
