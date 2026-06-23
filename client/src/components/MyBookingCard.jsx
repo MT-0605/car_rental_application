@@ -26,7 +26,7 @@ const MyBookingCard = ({ booking }) => {
   const car = booking.carId || {};
   const carName = car.brand && car.model ? `${car.brand} ${car.model}` : 'Car Details Unavailable';
   const carDetails = car.year && car.category ? `${car.year} · ${car.category} · ${car.location || 'N/A'}` : 'Details unavailable';
-  const carImage = car.imageUrl ? `http://localhost:5000${car.imageUrl}` : 'https://placehold.co/200x120/E2E8F0/000000?text=Car+Image';
+  const carImage = car.imageUrl ? `${import.meta.env.VITE_BACKEND_URL}${car.imageUrl}` : 'https://placehold.co/200x120/E2E8F0/000000?text=Car+Image';
 
   // Calculate rental period
   const rentalPeriod = booking.bookingDate && booking.returnDate 

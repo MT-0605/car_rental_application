@@ -28,7 +28,7 @@ const AdminDash = () => {
       try {
         const token = localStorage.getItem("token");
         const { data } = await axios.get(
-          "http://localhost:5000/api/admin/stats",
+          "${import.meta.env.VITE_BACKEND_URL}/api/admin/stats",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

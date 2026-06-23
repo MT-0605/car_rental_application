@@ -144,7 +144,7 @@ const CarDetailPage = () => {
                   )}
                   
                   <img
-                    src={`http://localhost:5000${car.imageUrl}`}
+                    src={`${import.meta.env.VITE_BACKEND_URL}${car.imageUrl}`}
                     alt={`${car.brand} ${car.model}`}
                     className={`w-full h-96 object-cover transition-all duration-700 rounded-3xl ${
                       imageLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'

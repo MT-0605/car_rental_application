@@ -20,7 +20,7 @@ const AdminCars = () => {
     setLoading(true);
     try {
       const params = { page, limit: CARS_PER_PAGE, search, status };
-      const { data } = await axios.get('http://localhost:5000/api/admin/cars', { ...tokenHeader(), params });
+      const { data } = await axios.get('${import.meta.env.VITE_BACKEND_URL}/api/admin/cars', { ...tokenHeader(), params });
 
       setCars(data.cars);
       setTotalPages(data.totalPages);
@@ -44,7 +44,7 @@ const AdminCars = () => {
 
   const approve = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/api/admin/cars/${id}/approve`, {}, tokenHeader());
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/approve`, {}, tokenHeader());
       await load(currentPage, searchTerm, statusFilter);
       alert('Car approved.');
     } catch (e) {
@@ -54,7 +54,7 @@ const AdminCars = () => {
 
   const reject = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/api/admin/cars/${id}/reject`, {}, tokenHeader());
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/reject`, {}, tokenHeader());
       await load(currentPage, searchTerm, statusFilter);
       alert('Car rejected.');
     } catch (e) {
@@ -65,7 +65,7 @@ const AdminCars = () => {
   const remove = async (id) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/cars/${id}`, tokenHeader());
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}`, tokenHeader());
       await load(currentPage, searchTerm, statusFilter);
       alert('Car deleted.');
     } catch (e) {

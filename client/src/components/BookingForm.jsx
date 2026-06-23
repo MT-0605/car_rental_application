@@ -68,7 +68,7 @@ const BookingForm = ({ car }) => {
 
     try {
       // ✅ Step 1: Create Razorpay order from backend
-      const { data } = await axios.post("http://localhost:5000/api/payment/create-order", {
+      const { data } = await axios.post("${import.meta.env.VITE_BACKEND_URL}/api/payment/create-order", {
         amount: totalPrice, // backend should handle paise conversion
       });
 
@@ -96,7 +96,7 @@ const BookingForm = ({ car }) => {
         handler: async function (response) {
           try {
             // ✅ Step 3: Verify payment + Save booking
-            const verifyRes = await axios.post("http://localhost:5000/api/payment/verify-payment", {
+            const verifyRes = await axios.post("${import.meta.env.VITE_BACKEND_URL}/api/payment/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,

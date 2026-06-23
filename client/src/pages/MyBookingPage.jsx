@@ -5,7 +5,7 @@ import { getLoggedInUser } from "../utils/auth";
 
 const bookingsAPI = {
   getUserBookings: async (userId) => {
-    return axios.get(`http://localhost:5000/api/bookings/${userId}`);
+    return axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/${userId}`);
   },
 };
 

@@ -13,7 +13,7 @@ const AdminUsers = () => {
     async function load() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/admin/users', {
+        const response = await fetch('${import.meta.env.VITE_BACKEND_URL}/api/admin/users', {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -73,7 +73,7 @@ const AdminUsers = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/admin/users', {
+      const response = await fetch('${import.meta.env.VITE_BACKEND_URL}/api/admin/users', {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

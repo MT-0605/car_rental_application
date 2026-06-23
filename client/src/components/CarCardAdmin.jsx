@@ -29,7 +29,7 @@ const CarCardAdmin = ({ car }) => {
   const load = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:5000/api/admin/cars",
+        "${import.meta.env.VITE_BACKEND_URL}/api/admin/cars",
         tokenHeader()
       );
       setCars(data);
@@ -47,7 +47,7 @@ const CarCardAdmin = ({ car }) => {
   const approve = async (id) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/admin/cars/${id}/approve`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/approve`,
         {},
         tokenHeader()
       );
@@ -61,7 +61,7 @@ const CarCardAdmin = ({ car }) => {
   const reject = async (id) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/admin/cars/${id}/reject`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/reject`,
         {},
         tokenHeader()
       );
@@ -75,7 +75,7 @@ const CarCardAdmin = ({ car }) => {
     if (!confirm("Delete this car?")) return;
     try {
       await axios.delete(
-        `http://localhost:5000/api/admin/cars/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}`,
         tokenHeader()
       );
       await load();

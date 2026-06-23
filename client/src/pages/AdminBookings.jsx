@@ -13,7 +13,7 @@ const AdminBookings = () => {
     async function load() {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/admin/bookings', {
+        const { data } = await axios.get('${import.meta.env.VITE_BACKEND_URL}/api/admin/bookings', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBookings(data);
