@@ -13,11 +13,6 @@ A modern, full-stack car rental application built with the MERN stack (MongoDB, 
 - **Car Location Tracking** - Automatic updates of car locations upon return
 - **Image Management** - Upload and manage car images with preview
 
-<!-- ## 🖥️ Screenshots
-
-<div align="center">
-  <p><i>Add your application screenshots here</i></p>
-</div> -->
 
 ## 🛠️ Tech Stack
 
@@ -74,6 +69,19 @@ cd ../client
 npm install
 npm start
 ```
+
+### 4. Database Setup
+```bash
+mongorestore --db carrental ./db-backup/carrental
+```
+
+### 5. Login credentials
+Admin:
+  email: admin@drivenow.com
+  password: admin123
+demo user:
+  email: meet123@gmail.com
+  password: MEET123
 
 ## 🌟 Features In Detail
 

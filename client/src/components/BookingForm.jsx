@@ -86,7 +86,7 @@ const BookingForm = ({ car }) => {
 
       // ✅ Step 2: Razorpay Checkout Options
       const options = {
-        key: "rzp_test_RIWsXV1k8IirI5",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "Car Rental Service",
