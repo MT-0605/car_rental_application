@@ -10,6 +10,8 @@ const AdminCars = () => {
   // State for search, filter, and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'pending', 'approved', 'rejected'
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [appliedStatus, setAppliedStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const CARS_PER_PAGE = 10;
@@ -36,14 +38,16 @@ const AdminCars = () => {
   }, [load]);
 
   // Handler for initiating a search or filter change.
-  const handleFilterOrSearch = () => {
-    load(1, searchTerm, statusFilter); // Reset to page 1 and load with new filters.
+  const handleFilterOrSearch = (search = searchTerm, status = statusFilter) => {
+    setAppliedSearch(search);
+    setAppliedStatus(status);
+    load(1, search, status);
   };
 
   const approve = async (id) => {
     try {
       await adminAPI.approveCar(id);
-      await load(currentPage, searchTerm, statusFilter);
+      await load(currentPage, appliedSearch, appliedStatus);
       alert('Car approved.');
     } catch (e) {
       alert(e.response?.data?.message || 'Approve failed');
@@ -53,7 +57,7 @@ const AdminCars = () => {
   const reject = async (id) => {
     try {
       await adminAPI.rejectCar(id);
-      await load(currentPage, searchTerm, statusFilter);
+      await load(currentPage, appliedSearch, appliedStatus);
       alert('Car rejected.');
     } catch (e) {
       alert(e.response?.data?.message || 'Reject failed');
@@ -64,7 +68,7 @@ const AdminCars = () => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
       await adminAPI.deleteCar(id);
-      await load(currentPage, searchTerm, statusFilter);
+      await load(currentPage, appliedSearch, appliedStatus);
       alert('Car deleted.');
     } catch (e) {
       alert(e.response?.data?.message || 'Delete failed');
@@ -89,7 +93,11 @@ const AdminCars = () => {
           />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setStatusFilter(val);
+              handleFilterOrSearch(searchTerm, val);
+            }}
             className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Statuses</option>
@@ -98,7 +106,7 @@ const AdminCars = () => {
             <option value="rejected">Rejected</option>
           </select>
           <button
-            onClick={handleFilterOrSearch}
+            onClick={() => handleFilterOrSearch(searchTerm, statusFilter)}
             className="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Filter / Search
@@ -161,7 +169,7 @@ const AdminCars = () => {
             {totalPages > 1 && (
               <div className="flex justify-between items-center mt-6">
                 <button
-                  onClick={() => load(currentPage - 1, searchTerm, statusFilter)}
+                  onClick={() => load(currentPage - 1, appliedSearch, appliedStatus)}
                   disabled={currentPage === 1}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
                 >
@@ -171,7 +179,7 @@ const AdminCars = () => {
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
-                  onClick={() => load(currentPage + 1, searchTerm, statusFilter)}
+                  onClick={() => load(currentPage + 1, appliedSearch, appliedStatus)}
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
                 >

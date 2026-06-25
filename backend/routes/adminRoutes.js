@@ -48,16 +48,19 @@ router.get('/cars', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
+    const status = req.query.status || 'all';
 
-    // 2. Create a search query filter for brand or model
-    const query = search
-      ? {
-          $or: [
-            { brand: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
-            { model: { $regex: search, $options: 'i' } }
-          ]
-        }
-      : {};
+    // 2. Create a search query filter for brand or model and status
+    const query = {};
+    if (search) {
+      query.$or = [
+        { brand: { $regex: search, $options: 'i' } }, // 'i' for case-insensitive
+        { model: { $regex: search, $options: 'i' } }
+      ];
+    }
+    if (status && status !== 'all') {
+      query.status = status;
+    }
 
     // 3. Get the total number of cars that match the search query
     const totalCars = await Car.countDocuments(query);
