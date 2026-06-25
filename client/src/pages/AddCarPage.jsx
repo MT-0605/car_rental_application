@@ -131,7 +131,7 @@ const AddCarPage = () => {
   const labelClass = "block mb-1 font-medium text-gray-700";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center pt-28 pb-12 px-4 sm:px-10 md:p-20">
       <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-extrabold text-gray-800 mb-2">

@@ -96,9 +96,9 @@ const Signup = () => {
 
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="flex flex-col lg:flex-row min-h-[700px]">
+          <div className="flex flex-col lg:flex-row h-auto lg:min-h-[700px]">
             {/* Left Side - Branding */}
-            <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex flex-col justify-center items-center text-white relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex-col justify-center items-center text-white relative overflow-hidden">
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 text-center">
                 <div className="mb-8 transform hover:scale-110 transition-transform duration-300">
@@ -150,7 +150,7 @@ const Signup = () => {
             </div>
 
             {/* Right Side - Form */}
-            <div className="lg:w-1/2 p-12 bg-white/5 backdrop-blur-sm">
+            <div className="w-full lg:w-1/2 p-6 sm:p-8 lg:p-12 bg-white/5 backdrop-blur-sm py-10 lg:py-12">
               <div className="max-w-md mx-auto">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-white mb-2">

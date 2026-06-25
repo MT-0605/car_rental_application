@@ -51,7 +51,7 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-2 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -74,10 +74,10 @@ const Login = () => {
 
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="flex flex-col lg:flex-row h-[95vh] max-h-[700px]">
+          <div className="flex flex-col lg:flex-row h-auto lg:h-[95vh] lg:max-h-[700px]">
             
             {/* Left Side - Branding */}
-            <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-6 lg:p-8 flex flex-col justify-center items-center text-white relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-6 lg:p-8 flex-col justify-center items-center text-white relative overflow-hidden">
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 text-center">
                 <div className="mb-4 transform hover:scale-110 transition-transform duration-300">
@@ -126,7 +126,7 @@ const Login = () => {
             </div>
 
             {/* Right Side - Form */}
-            <div className="lg:w-1/2 p-4 lg:p-6 bg-white/5 backdrop-blur-sm flex flex-col justify-center">
+            <div className="w-full lg:w-1/2 p-6 sm:p-8 lg:p-12 bg-white/5 backdrop-blur-sm flex flex-col justify-center py-10 lg:py-6">
               <div className="max-w-md mx-auto w-full">
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-bold text-white mb-1">Sign In</h2>

@@ -94,17 +94,17 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Sidebar />
       <div className="flex-grow">
         {/* Header Section */}
-        <div className="bg-white border-b border-slate-200 px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 mb-2">User Management</h1>
               <p className="text-slate-600">Manage and monitor user accounts</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleRefresh}
                 disabled={loading}
@@ -122,11 +122,11 @@ const AdminUsers = () => {
         </div>
 
         {/* Main Content */}
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           {/* Controls Bar */}
-          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
             {/* Search */}
-            <div className="relative flex-grow max-w-md">
+            <div className="relative flex-grow max-w-md w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"

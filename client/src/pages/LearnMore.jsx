@@ -4,7 +4,7 @@ import { Car, ShieldCheck, CreditCard, Smartphone } from "lucide-react";
 
 const LearnMore = () => {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className="min-h-screen bg-gray-50 text-gray-800 pt-20">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16 px-6 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Learn More About Our Car Rental Service</h1>

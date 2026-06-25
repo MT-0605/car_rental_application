@@ -215,8 +215,8 @@ const Footer = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-8">
-              <div className="flex space-x-6">
+            <div className="flex flex-col sm:flex-row items-center gap-6 sm:space-x-8">
+              <div className="flex flex-wrap justify-center gap-4 sm:space-x-6 sm:gap-0">
                 {["Terms of Service", "Privacy Policy", "Cookie Policy"].map((item, index) => (
                   <a
                     key={index}
@@ -231,7 +231,7 @@ const Footer = () => {
               {/* Scroll to Top Button */}
               <button
                 onClick={scrollToTop}
-                className="group w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-2xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"
+                className="group w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-2xl flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 flex-shrink-0"
               >
                 <FaArrowUp className="text-white text-lg group-hover:scale-110 transition-transform duration-300" />
               </button>

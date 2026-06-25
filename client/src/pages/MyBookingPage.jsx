@@ -118,18 +118,18 @@ const MyBookingPage = () => {
   }, [searchQuery, bookings]);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto pt-28 pb-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-gray-900">My Bookings</h2>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search by car..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border rounded-xl w-64 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="pl-10 pr-4 py-2 border rounded-xl w-full sm:w-64 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
       </div>
