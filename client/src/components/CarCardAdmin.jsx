@@ -8,7 +8,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useEffect} from "react";
-import axios from "axios";
+import { adminAPI } from "../utils/api";
 
 const CarCardAdmin = ({ car }) => {
   const getStatusBadge = (status) => {
@@ -22,16 +22,9 @@ const CarCardAdmin = ({ car }) => {
     }`;
   };
 
-  const tokenHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
-
   const load = async () => {
     try {
-      const { data } = await axios.get(
-        "${import.meta.env.VITE_BACKEND_URL}/api/admin/cars",
-        tokenHeader()
-      );
+      const { data } = await adminAPI.getCars();
       setCars(data);
     } catch (e) {
       setError(e.response?.data?.message || "Failed to load cars");
@@ -46,11 +39,7 @@ const CarCardAdmin = ({ car }) => {
 
   const approve = async (id) => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/approve`,
-        {},
-        tokenHeader()
-      );
+      await adminAPI.approveCar(id);
       await load();
       alert("Car approved and email sent (if configured).");
     } catch (e) {
@@ -60,11 +49,7 @@ const CarCardAdmin = ({ car }) => {
 
   const reject = async (id) => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/reject`,
-        {},
-        tokenHeader()
-      );
+      await adminAPI.rejectCar(id);
       await load();
     } catch (e) {
       alert(e.response?.data?.message || "Reject failed");
@@ -74,10 +59,7 @@ const CarCardAdmin = ({ car }) => {
   const remove = async (id) => {
     if (!confirm("Delete this car?")) return;
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}`,
-        tokenHeader()
-      );
+      await adminAPI.deleteCar(id);
       await load();
     } catch (e) {
       alert(e.response?.data?.message || "Delete failed");

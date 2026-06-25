@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import Sidebar from '../components/Sidebar';
+import { adminAPI } from '../utils/api';
 
 const AdminCars = () => {
   const [cars, setCars] = useState([]);
@@ -14,13 +14,11 @@ const AdminCars = () => {
   const [totalPages, setTotalPages] = useState(1);
   const CARS_PER_PAGE = 10;
 
-  const tokenHeader = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-
   const load = useCallback(async (page = 1, search = '', status = 'all') => {
     setLoading(true);
     try {
       const params = { page, limit: CARS_PER_PAGE, search, status };
-      const { data } = await axios.get('${import.meta.env.VITE_BACKEND_URL}/api/admin/cars', { ...tokenHeader(), params });
+      const { data } = await adminAPI.getCars(params);
 
       setCars(data.cars);
       setTotalPages(data.totalPages);
@@ -44,7 +42,7 @@ const AdminCars = () => {
 
   const approve = async (id) => {
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/approve`, {}, tokenHeader());
+      await adminAPI.approveCar(id);
       await load(currentPage, searchTerm, statusFilter);
       alert('Car approved.');
     } catch (e) {
@@ -54,7 +52,7 @@ const AdminCars = () => {
 
   const reject = async (id) => {
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}/reject`, {}, tokenHeader());
+      await adminAPI.rejectCar(id);
       await load(currentPage, searchTerm, statusFilter);
       alert('Car rejected.');
     } catch (e) {
@@ -65,7 +63,7 @@ const AdminCars = () => {
   const remove = async (id) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/cars/${id}`, tokenHeader());
+      await adminAPI.deleteCar(id);
       await load(currentPage, searchTerm, statusFilter);
       alert('Car deleted.');
     } catch (e) {

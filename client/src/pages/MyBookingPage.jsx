@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { Calendar, Clock, MapPin, Search } from "lucide-react";
 import { getLoggedInUser } from "../utils/auth";
-
-const bookingsAPI = {
-  getUserBookings: async (userId) => {
-    return axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/${userId}`);
-  },
-};
+import { bookingsAPI } from "../utils/api";
 
 // ✅ Single Booking Card
 const MyBookingCard = ({ booking }) => {

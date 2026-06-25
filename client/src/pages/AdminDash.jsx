@@ -7,7 +7,7 @@ import {
   AlertCircle,
   IndianRupee,
 } from "lucide-react";
-import axios from "axios";
+import { adminAPI } from "../utils/api";
 
 // Import your existing Sidebar component
 import Sidebar from "../components/Sidebar";
@@ -26,13 +26,7 @@ const AdminDash = () => {
   useEffect(() => {
     async function load() {
       try {
-        const token = localStorage.getItem("token");
-        const { data } = await axios.get(
-          "${import.meta.env.VITE_BACKEND_URL}/api/admin/stats",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const { data } = await adminAPI.getStats();
         setStats(data);
       } catch (e) {
         setError(e.response?.data?.message || "Failed to load stats");

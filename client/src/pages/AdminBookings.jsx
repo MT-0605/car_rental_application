@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import axios from 'axios';
+import { adminAPI } from '../utils/api';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,10 +12,7 @@ const AdminBookings = () => {
   useEffect(() => {
     async function load() {
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get('${import.meta.env.VITE_BACKEND_URL}/api/admin/bookings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const { data } = await adminAPI.getBookings();
         setBookings(data);
       } catch (e) {
         setError(e.response?.data?.message || 'Failed to load bookings');

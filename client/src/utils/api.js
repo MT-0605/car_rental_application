@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL.endsWith('/api')
+  ? import.meta.env.VITE_BACKEND_URL
+  : `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -75,11 +77,17 @@ export const bookingsAPI = {
 export const adminAPI = {
   getStats: () => api.get('/admin/stats'),
   getBookings: () => api.get('/admin/bookings'),
-  getCars: () => api.get('/admin/cars'),
+  getCars: (params) => api.get('/admin/cars', { params }),
   approveCar: (id) => api.post(`/admin/cars/${id}/approve`),
   rejectCar: (id) => api.post(`/admin/cars/${id}/reject`),
   deleteCar: (id) => api.delete(`/admin/cars/${id}`),
   getUsers: () => api.get('/admin/users'),
+};
+
+// Payment API
+export const paymentAPI = {
+  createOrder: (amount) => api.post('/payment/create-order', { amount }),
+  verifyPayment: (paymentData) => api.post('/payment/verify-payment', paymentData),
 };
 
 export default api;

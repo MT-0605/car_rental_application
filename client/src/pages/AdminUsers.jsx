@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { Search, Filter, Users, MoreVertical, Mail, Shield, User, RefreshCw } from 'lucide-react';
+import { adminAPI } from '../utils/api';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -12,22 +13,10 @@ const AdminUsers = () => {
   useEffect(() => {
     async function load() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('${import.meta.env.VITE_BACKEND_URL}/api/admin/users', {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        
-        const data = await response.json();
-        setUsers(data);
+        const response = await adminAPI.getUsers();
+        setUsers(response.data);
       } catch (e) {
-        setError(e.message || 'Failed to load users');
+        setError(e.response?.data?.message || e.message || 'Failed to load users');
       } finally {
         setLoading(false);
       }
@@ -72,22 +61,10 @@ const AdminUsers = () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('${import.meta.env.VITE_BACKEND_URL}/api/admin/users', {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      
-      const data = await response.json();
-      setUsers(data);
+      const response = await adminAPI.getUsers();
+      setUsers(response.data);
     } catch (e) {
-      setError(e.message || 'Failed to load users');
+      setError(e.response?.data?.message || e.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
