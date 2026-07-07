@@ -71,6 +71,7 @@ export const bookingsAPI = {
   createBooking: (bookingData) => api.post('/bookings', bookingData),
   getUserBookings: (userId) => api.get(`/bookings/${userId}`),
   getBookingById: (id) => api.get(`/bookings/${id}`),
+  getCarBookings: (carId) => api.get(`/bookings/car/${carId}`),
 };
 
 // Admin API

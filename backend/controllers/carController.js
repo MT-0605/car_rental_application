@@ -1,5 +1,6 @@
 const Car = require('../models/Car');
 const Booking = require('../models/Booking');
+const { updateCarAvailability } = require('../utils/carAvailability');
 
 // @desc    Add new car listing
 // @route   POST /api/cars/add
@@ -56,6 +57,7 @@ const addCar = async (req, res) => {
 // @access  Public
 const getCarById = async (req, res) => {
   try {
+    await updateCarAvailability();
     const car = await Car.findById(req.params.id);
     if (!car) {
       return res.status(404).json({ message: 'Car not found' });
@@ -69,6 +71,7 @@ const getCarById = async (req, res) => {
 
 const getAllCars = async (req, res) => {
   try {
+    await updateCarAvailability();
     const cars = await Car.find({ status: 'approved' });
     res.status(200).json(cars);
   } catch (error) {

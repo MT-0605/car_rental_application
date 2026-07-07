@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLoggedInUser } from "../utils/auth";
-import { paymentAPI } from "../utils/api";
+import { paymentAPI, bookingsAPI } from "../utils/api";
 
 const BookingForm = ({ car }) => {
   const navigate = useNavigate();
@@ -13,6 +13,21 @@ const BookingForm = ({ car }) => {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [existingBookings, setExistingBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const { data } = await bookingsAPI.getCarBookings(car._id);
+        setExistingBookings(data.bookings || []);
+      } catch (err) {
+        console.error("Error fetching car bookings:", err);
+      }
+    };
+    if (car?._id) {
+      fetchBookings();
+    }
+  }, [car?._id]);
 
   // Handle form input change
   const handleChange = (e) => {
@@ -65,6 +80,22 @@ const BookingForm = ({ car }) => {
     if (!validateForm()) return;
 
     setLoading(true);
+
+    // Overlap validation
+    const requestedStart = new Date(formData.startDate).setHours(0, 0, 0, 0);
+    const requestedEnd = new Date(formData.endDate).setHours(23, 59, 59, 999);
+
+    const overlapFound = existingBookings.some((booking) => {
+      const bStart = new Date(booking.startDate).setHours(0, 0, 0, 0);
+      const bEnd = new Date(booking.endDate).setHours(23, 59, 59, 999);
+      return requestedStart <= bEnd && bStart <= requestedEnd;
+    });
+
+    if (overlapFound) {
+      setError("This vehicle is already booked for the selected dates. Please choose different dates.");
+      setLoading(false);
+      return;
+    }
 
     try {
       // ✅ Step 1: Create Razorpay order from backend
@@ -195,6 +226,25 @@ const BookingForm = ({ car }) => {
 
       {/* Booking Form */}
       <form className="space-y-6" onSubmit={handleBookNow}>
+        {existingBookings.filter(b => new Date(b.endDate).getTime() >= new Date().setHours(0,0,0,0)).length > 0 && (
+          <div className="bg-amber-50/80 border border-amber-200/50 rounded-2xl p-4 text-sm text-amber-950 backdrop-blur-sm">
+            <p className="font-semibold mb-1 flex items-center gap-1.5 text-amber-800">
+              <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Already Booked Dates:
+            </p>
+            <ul className="list-disc pl-5 space-y-0.5 font-medium">
+              {existingBookings
+                .filter(b => new Date(b.endDate).getTime() >= new Date().setHours(0,0,0,0))
+                .map((b, idx) => (
+                  <li key={idx}>
+                    {new Date(b.startDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})} to {new Date(b.endDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
         <input
           type="text"
           name="pickupLocation"

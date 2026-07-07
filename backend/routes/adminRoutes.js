@@ -3,6 +3,7 @@ const { authMiddleware, adminMiddleware } = require('../middleware/authMiddlewar
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const User = require('../models/User');
+const { updateCarAvailability } = require('../utils/carAvailability');
 const router = express.Router();
 
 // All routes require admin auth
@@ -44,6 +45,7 @@ router.get('/bookings', async (req, res) => {
 // =================================================================
 router.get('/cars', async (req, res) => {
   try {
+    await updateCarAvailability();
     // 1. Get query parameters with default values
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;

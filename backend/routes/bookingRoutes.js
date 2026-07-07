@@ -80,4 +80,16 @@ router.get('/bookings/:id', async (req, res) => {
   }
 });
 
+// GET /api/bookings/car/:carId — Get all bookings for a specific car
+router.get('/bookings/car/:carId', async (req, res) => {
+  try {
+    const { carId } = req.params;
+    const bookings = await Booking.find({ carId, paymentStatus: 'Paid' });
+    res.status(200).json({ success: true, bookings });
+  } catch (err) {
+    console.error('Get car bookings error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;
