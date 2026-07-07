@@ -7,7 +7,9 @@ const AdminBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'active', 'completed'
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookingsPerPage = 8;
 
   useEffect(() => {
     async function load() {
@@ -23,20 +25,29 @@ const AdminBookings = () => {
     load();
   }, []);
 
+  // Reset page when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, activeTab]);
+
+  const today = new Date();
   const filteredBookings = bookings.filter(booking => {
     const matchesSearch = 
       booking._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (booking.userId?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${booking.carId?.brand || ''} ${booking.carId?.model || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'completed'
-        ? new Date(booking.endDate) < new Date()
-        : booking.paymentStatus.toLowerCase() === statusFilter);
+    const isCompleted = new Date(booking.endDate) < today;
+    const matchesTab =
+      activeTab === 'all' ||
+      (activeTab === 'completed' ? isCompleted : !isCompleted);
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesTab;
   });
+
+  const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+  const startIndex = (currentPage - 1) * bookingsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, startIndex + bookingsPerPage);
 
   // ✅ Updated Badge Logic with Completed
   const getStatusBadge = (status, endDate) => {
@@ -106,8 +117,8 @@ const AdminBookings = () => {
 
           {/* Filters and Search */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
+            <div className="flex flex-col md:flex-row gap-6 items-end">
+              <div className="flex-1 w-full">
                 <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
                   Search Bookings
                 </label>
@@ -123,6 +134,42 @@ const AdminBookings = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                </div>
+              </div>
+              
+              <div className="w-full md:w-auto">
+                <span className="block text-sm font-medium text-gray-700 mb-2">Filter Bookings</span>
+                <div className="flex p-1 bg-gray-100 rounded-xl gap-1">
+                  <button
+                    onClick={() => setActiveTab('all')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
+                      activeTab === 'all'
+                        ? 'bg-white text-blue-700 shadow-sm font-semibold'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                    }`}
+                  >
+                    All Bookings ({bookings.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('active')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
+                      activeTab === 'active'
+                        ? 'bg-white text-blue-700 shadow-sm font-semibold'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                    }`}
+                  >
+                    Active ({bookings.filter(b => new Date(b.endDate) >= new Date()).length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('completed')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
+                      activeTab === 'completed'
+                        ? 'bg-white text-blue-700 shadow-sm font-semibold'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                    }`}
+                  >
+                    Completed ({bookings.filter(b => new Date(b.endDate) < new Date()).length})
+                  </button>
                 </div>
               </div>
             </div>
@@ -152,7 +199,7 @@ const AdminBookings = () => {
               </svg>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
               <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' ? 'Try adjusting your search or filter criteria.' : 'No bookings have been made yet.'}
+                {searchTerm || activeTab !== 'all' ? 'Try adjusting your search or filter criteria.' : 'No bookings have been made yet.'}
               </p>
             </div>
           ) : (
@@ -181,7 +228,7 @@ const AdminBookings = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredBookings.map(booking => (
+                  {paginatedBookings.map(booking => (
                     <tr key={booking._id} className="hover:bg-gray-50 transition-colors duration-150">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded">
@@ -244,20 +291,97 @@ const AdminBookings = () => {
           )}
         </div>
 
-        {/* Results Info */}
+        {/* Results Info & Pagination */}
         {!loading && filteredBookings.length > 0 && (
-          <div className="mt-4 text-sm text-gray-500 text-center">
-            Showing {filteredBookings.length} of {bookings.length} bookings
-            {(searchTerm || statusFilter !== 'all') && (
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('all');
-                }}
-                className="ml-2 text-blue-600 hover:text-blue-800 underline"
-              >
-                Clear filters
-              </button>
+          <div className="mt-4 space-y-4">
+            <div className="text-sm text-gray-500 text-center">
+              Showing {filteredBookings.length} of {bookings.length} bookings
+              {(searchTerm || activeTab !== 'all') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setActiveTab('all');
+                  }}
+                  className="ml-2 text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-xl shadow-sm">
+                <div className="flex flex-1 justify-between sm:hidden">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+                <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                      <span className="font-medium">
+                        {Math.min(startIndex + bookingsPerPage, filteredBookings.length)}
+                      </span>{' '}
+                      of <span className="font-medium">{filteredBookings.length}</span> results
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 cursor-pointer"
+                      >
+                        <span className="sr-only">Previous</span>
+                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                      
+                      {[...Array(totalPages)].map((_, idx) => {
+                        const pageNum = idx + 1;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 cursor-pointer ${
+                              currentPage === pageNum
+                                ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 cursor-pointer"
+                      >
+                        <span className="sr-only">Next</span>
+                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
