@@ -15,6 +15,17 @@ const CarListPage = () => {
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState("grid");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const carsPerPage = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterCategory, filterPrice, filterAvailability, sortBy]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -66,6 +77,13 @@ const CarListPage = () => {
           return 0;
       }
     });
+
+  const indexOfLastCar = currentPage * carsPerPage;
+  const indexOfFirstCar = indexOfLastCar - carsPerPage;
+  const currentCars = filteredCars.slice(indexOfFirstCar, indexOfLastCar);
+  const totalPages = Math.ceil(filteredCars.length / carsPerPage);
+  const showingStart = filteredCars.length === 0 ? 0 : indexOfFirstCar + 1;
+  const showingEnd = Math.min(indexOfLastCar, filteredCars.length);
 
   const categories = ["all", ...new Set(cars.map(car => car.category))];
 
@@ -265,9 +283,9 @@ const CarListPage = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 border border-white/20">
             <p className="text-gray-700 font-medium">
-              <span className="text-2xl font-bold text-purple-600">{filteredCars.length}</span>
+              <span className="text-2xl font-bold text-purple-600">{showingStart}-{showingEnd}</span>
               <span className="mx-2">of</span>
-              <span className="text-lg font-semibold">{cars.length}</span>
+              <span className="text-lg font-semibold">{filteredCars.length}</span>
               <span className="ml-2">premium vehicles</span>
             </p>
           </div>
@@ -334,26 +352,65 @@ const CarListPage = () => {
             </div>
           </div>
         ) : (
-          /* Enhanced Cars Grid with Animation */
-          <div className={`
-            ${viewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" 
-              : "space-y-6"
-            }
-          `}>
-            {filteredCars.map((car, index) => (
-              <div 
-                key={car._id}
-                className="opacity-0 animate-fadeIn"
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  animationFillMode: 'forwards'
-                }}
-              >
-                <CarCard car={car} />
+          <>
+            {/* Enhanced Cars Grid with Animation */}
+            <div className={`
+              ${viewMode === "grid" 
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" 
+                : "space-y-6"
+              }
+            `}>
+              {currentCars.map((car, index) => (
+                <div 
+                  key={car._id}
+                  className="opacity-0 animate-fadeIn"
+                  style={{
+                    animationDelay: `${index * 100}ms`,
+                    animationFillMode: 'forwards'
+                  }}
+                >
+                  <CarCard car={car} />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mt-12 bg-white/80 backdrop-blur-md py-4 px-6 rounded-2xl border border-white/20 shadow-md max-w-md mx-auto">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-xl border border-purple-200/50 text-sm font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 text-purple-700"
+                >
+                  Previous
+                </button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-300 ${
+                        currentPage === page
+                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md transform scale-105"
+                          : "text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-transparent"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-xl border border-purple-200/50 text-sm font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 text-purple-700"
+                >
+                  Next
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 
