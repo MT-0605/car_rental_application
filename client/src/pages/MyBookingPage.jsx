@@ -66,6 +66,7 @@ const MyBookingPage = () => {
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all"); // 'all', 'current', 'previous'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -96,20 +97,36 @@ const MyBookingPage = () => {
     fetchBookings();
   }, []);
 
-  // ✅ Search filter
+  // ✅ Search and Tab filter
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredBookings(bookings);
-    } else {
-      setFilteredBookings(
-        bookings.filter(
-          (b) =>
-            b.carId?.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            b.carId?.model?.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+    let result = bookings;
+
+    // Apply active tab filter
+    const today = new Date();
+    if (activeTab === "current") {
+      result = result.filter((b) => new Date(b.endDate) >= today);
+    } else if (activeTab === "previous") {
+      result = result.filter((b) => new Date(b.endDate) < today);
+    }
+
+    // Apply search query filter
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (b) =>
+          b.carId?.brand?.toLowerCase().includes(query) ||
+          b.carId?.model?.toLowerCase().includes(query)
       );
     }
-  }, [searchQuery, bookings]);
+
+    setFilteredBookings(result);
+  }, [searchQuery, activeTab, bookings]);
+
+  // Dynamically count bookings for tabs
+  const today = new Date();
+  const allCount = bookings.length;
+  const currentCount = bookings.filter((b) => new Date(b.endDate) >= today).length;
+  const previousCount = bookings.filter((b) => new Date(b.endDate) < today).length;
 
   return (
     <div className="max-w-6xl mx-auto pt-28 pb-12 px-4 sm:px-6 lg:px-8">
@@ -126,6 +143,40 @@ const MyBookingPage = () => {
             className="pl-10 pr-4 py-2 border rounded-xl w-full sm:w-64 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
+      </div>
+
+      {/* Tabs / Filter buttons */}
+      <div className="flex p-1 bg-gray-100 rounded-xl mb-6 max-w-md gap-1">
+        <button
+          onClick={() => setActiveTab("all")}
+          className={`flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 ${
+            activeTab === "all"
+              ? "bg-white text-indigo-700 shadow-sm font-semibold"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+          }`}
+        >
+          All ({allCount})
+        </button>
+        <button
+          onClick={() => setActiveTab("current")}
+          className={`flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 ${
+            activeTab === "current"
+              ? "bg-white text-indigo-700 shadow-sm font-semibold"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+          }`}
+        >
+          Current ({currentCount})
+        </button>
+        <button
+          onClick={() => setActiveTab("previous")}
+          className={`flex-1 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 ${
+            activeTab === "previous"
+              ? "bg-white text-indigo-700 shadow-sm font-semibold"
+              : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+          }`}
+        >
+          Previous ({previousCount})
+        </button>
       </div>
 
       {/* Error */}
